@@ -2,6 +2,9 @@ import express from 'express';
 import logger from './logger.ts';
 import type { HttpError } from 'http-errors';
 import type { Request, Response, NextFunction } from 'express';
+import "reflect-metadata"
+
+
 
 const app = express();
 
