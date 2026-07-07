@@ -1,9 +1,36 @@
 import { config } from 'dotenv';
-config();
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const {PORT,NODE_ENV} = process.env;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export const Config = {
+config({path:path.join(__dirname,`../../.env.${process.env.NODE_ENV}`)});
+
+const {
     PORT,
     NODE_ENV,
+    DB_HOST,
+    DB_PORT,
+    DB_USER,
+    DB_PASSWORD,
+    DB_DATABASE,
+    DB_SYNCHRONIZE,
+    DB_LOGGING,
+    JWT_SECRET,
+    JWT_EXPIRES_IN
+} = process.env;
+
+export const Config = {
+    PORT: PORT || '5501',
+    NODE_ENV: NODE_ENV || 'dev',
+    DB_HOST: DB_HOST || 'localhost',
+    DB_PORT: DB_PORT || '5432',
+    DB_USER: DB_USER || 'postgres',
+    DB_PASSWORD: DB_PASSWORD || 'postgres',
+    DB_DATABASE: DB_DATABASE || 'auth_service',
+    DB_SYNCHRONIZE: DB_SYNCHRONIZE === 'true' || true,
+    DB_LOGGING: DB_LOGGING === 'true' || false,
+    JWT_SECRET: JWT_SECRET || 'dev-secret-key-1234567890',
+    JWT_EXPIRES_IN: JWT_EXPIRES_IN || '1h'
 }
