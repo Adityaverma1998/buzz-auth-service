@@ -1,5 +1,6 @@
 import type { Repository } from "typeorm";
 import { User } from "../entities/User.ts";
+import { UserDevice } from "../entities/UserDevice.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Config } from "../config/index.ts";
@@ -9,9 +10,11 @@ import { getAuth } from "firebase-admin/auth";
 
 export class UserService {
     private userRepository: Repository<User>;
+    private deviceRepository: Repository<UserDevice>;
 
-    constructor(userRepository: Repository<User>) {
+    constructor(userRepository: Repository<User>, deviceRepository: Repository<UserDevice>) {
         this.userRepository = userRepository;
+        this.deviceRepository = deviceRepository;
     }
 
     async register(input: RegisterInput): Promise<User> {
@@ -39,7 +42,9 @@ export class UserService {
         user.provider = "local";
         user.role = input.role || "customer";
 
-        return await this.userRepository.save(user);
+        const savedUser = await this.userRepository.save(user);
+        await this.saveDeviceToken(savedUser, input.fcmToken);
+        return savedUser;
     }
 
     async login(input: LoginInput): Promise<{ user: User; token: string }> {
@@ -65,6 +70,8 @@ export class UserService {
 
         // Generate JWT token
         const token = this.generateToken(user);
+
+        await this.saveDeviceToken(user, input.fcmToken);
 
         return { user, token };
     }
@@ -97,6 +104,8 @@ export class UserService {
         }
 
         const token = this.generateToken(user);
+
+        await this.saveDeviceToken(user, input.fcmToken);
 
         return { user, token };
     }
@@ -154,7 +163,30 @@ export class UserService {
 
         const token = this.generateToken(user);
 
+        await this.saveDeviceToken(user, input.fcmToken);
+
         return { user, token };
+    }
+
+    private async saveDeviceToken(user: User, fcmToken?: string): Promise<void> {
+        if (!fcmToken) return;
+
+        const existingDevice = await this.deviceRepository.findOne({
+            where: { fcmToken },
+            relations: { user: true }
+        });
+
+        if (existingDevice) {
+            if (existingDevice.user.id !== user.id) {
+                existingDevice.user = user;
+                await this.deviceRepository.save(existingDevice);
+            }
+        } else {
+            const device = new UserDevice();
+            device.fcmToken = fcmToken;
+            device.user = user;
+            await this.deviceRepository.save(device);
+        }
     }
 
     private generateToken(user: User): string {

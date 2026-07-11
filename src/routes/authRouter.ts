@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AppDataSource } from "../config/data-source.ts";
 import { User } from "../entities/User.ts";
+import { UserDevice } from "../entities/UserDevice.ts";
 import { UserService } from "../services/UserService.ts";
 import { UserController } from "../controllers/UserController.ts";
 
@@ -8,7 +9,8 @@ const router = Router();
 
 // Instantiate dependencies and perform manual Dependency Injection (DI)
 const userRepository = AppDataSource.getRepository(User);
-const userService = new UserService(userRepository);
+const deviceRepository = AppDataSource.getRepository(UserDevice);
+const userService = new UserService(userRepository, deviceRepository);
 const userController = new UserController(userService);
 
 // Wire up routes wrapping handlers in arrow functions to maintain "this" context

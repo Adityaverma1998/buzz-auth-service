@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm"
+import { UserDevice } from "./UserDevice.ts"
 
 @Entity()
 export class User {
@@ -34,6 +35,9 @@ export class User {
         default: "customer"
     })
     role!: "admin" | "customer"
+
+    @OneToMany(() => UserDevice, (device) => device.user)
+    devices!: UserDevice[]
 
     @CreateDateColumn()
     createdAt!: Date

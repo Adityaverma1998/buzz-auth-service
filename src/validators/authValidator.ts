@@ -6,12 +6,14 @@ export const registerSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     phone: z.string().optional(),
-    role: z.enum(["admin", "customer"]).optional()
+    role: z.enum(["admin", "customer"]).optional(),
+    fcmToken: z.string().optional()
 });
 
 export const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
-    password: z.string().min(1, "Password is required")
+    password: z.string().min(1, "Password is required"),
+    fcmToken: z.string().optional()
 });
 
 export const oauthLoginSchema = z.object({
@@ -19,16 +21,16 @@ export const oauthLoginSchema = z.object({
     provider: z.enum(["google", "github", "facebook"]),
     providerUserId: z.string().min(1, "Provider user ID is required"),
     firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required")
+    lastName: z.string().min(1, "Last name is required"),
+    fcmToken: z.string().optional()
+});
+
+export const firebaseLoginSchema = z.object({
+    idToken: z.string().min(1, "Firebase ID Token is required"),
+    fcmToken: z.string().optional()
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type OAuthLoginInput = z.infer<typeof oauthLoginSchema>;
-
-export const firebaseLoginSchema = z.object({
-    idToken: z.string().min(1, "Firebase ID Token is required")
-});
-
 export type FirebaseLoginInput = z.infer<typeof firebaseLoginSchema>;
-

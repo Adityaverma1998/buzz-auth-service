@@ -1,6 +1,14 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import { User } from "../entities/User.ts"
+import { UserDevice } from "../entities/UserDevice.ts"
+import { Category } from "../entities/Category.ts"
+import { Brand } from "../entities/Brand.ts"
+import { Attribute } from "../entities/Attribute.ts"
+import { AttributeValue } from "../entities/AttributeValue.ts"
+import { Product } from "../entities/Product.ts"
+import { ProductImage } from "../entities/ProductImage.ts"
+import { ProductVariant } from "../entities/ProductVariant.ts"
 import { Config } from "./index.ts"
 
 export const AppDataSource = new DataSource({
@@ -14,7 +22,18 @@ export const AppDataSource = new DataSource({
     // Don't use this in production 
     synchronize: true,
     logging: false,
-    entities: [User],
+    entities: [
+        User,
+        UserDevice,
+        Category,
+        Brand,
+        Attribute,
+        AttributeValue,
+        Product,
+        ProductImage,
+        ProductVariant
+    ],
     migrations: [],
     subscribers: [],
 })
+

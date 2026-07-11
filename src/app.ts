@@ -3,6 +3,9 @@ import logger from './logger.ts';
 import type { Request, Response, NextFunction } from 'express';
 import "reflect-metadata";
 import authRouter from "./routes/authRouter.ts";
+import productRouter from "./routes/productRouter.ts";
+import categoryRouter from "./routes/categoryRouter.ts";
+import brandRouter from "./routes/brandRouter.ts";
 import { ZodError } from "zod";
 import type { ZodIssue } from "zod";
 
@@ -10,12 +13,18 @@ const app = express();
 
 app.use(express.json());
 
+// Serve uploaded files
+app.use("/uploads", express.static("uploads"));
+
 app.get('/', (req, res) => {
     res.send("Hello World maza a gya h !");
 });
 
-// Mount authentication router
+// Mount routers
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/products", productRouter);
+app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/brands", brandRouter);
 
 // Global Error Handler Middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
