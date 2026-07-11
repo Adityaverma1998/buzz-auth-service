@@ -3,6 +3,8 @@ import { AppDataSource } from "../config/data-source.ts"
 import { Order } from "../entities/Order.ts"
 import { Product } from "../entities/Product.ts"
 import { AuditLog } from "../entities/AuditLog.ts"
+import { UserDevice } from "../entities/UserDevice.ts"
+import { NotificationService } from "../services/NotificationService.ts"
 import { OrderStatusService } from "../services/OrderStatusService.ts"
 import { InventoryService } from "../services/InventoryService.ts"
 import { AuditService } from "../services/AuditService.ts"
@@ -20,13 +22,16 @@ const auditRepository = AppDataSource.getRepository(AuditLog)
 const orderStatusService = new OrderStatusService()
 const inventoryService = new InventoryService(productRepository)
 const auditService = new AuditService(auditRepository)
+const deviceRepository = AppDataSource.getRepository(UserDevice)
+const notificationService = new NotificationService(deviceRepository)
 
 const orderService = new OrderService(
     AppDataSource,
     orderRepository,
     orderStatusService,
     inventoryService,
-    auditService
+    auditService,
+    notificationService
 )
 const orderController = new OrderController(orderService)
 

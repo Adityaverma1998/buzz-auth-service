@@ -2,7 +2,7 @@ import { initializeApp, cert } from "firebase-admin";
 import { Config } from "./index.ts";
 import logger from "../logger.ts";
 
-let firebaseApp;
+let firebaseApp: any;
 
 // Initialize Firebase Admin SDK if credentials are provided
 if (Config.FIREBASE_PROJECT_ID && Config.FIREBASE_CLIENT_EMAIL && Config.FIREBASE_PRIVATE_KEY) {

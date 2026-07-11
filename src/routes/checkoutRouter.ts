@@ -9,6 +9,7 @@ import { Coupon } from "../entities/Coupon.ts"
 import { CouponUsage } from "../entities/CouponUsage.ts"
 import { Payment } from "../entities/Payment.ts"
 import { AuditLog } from "../entities/AuditLog.ts"
+import { UserDevice } from "../entities/UserDevice.ts"
 
 import { CartService } from "../services/CartService.ts"
 import { AddressService } from "../services/AddressService.ts"
@@ -18,6 +19,7 @@ import { InventoryService } from "../services/InventoryService.ts"
 import { PaymentService } from "../services/PaymentService.ts"
 import { AuditService } from "../services/AuditService.ts"
 import { CheckoutService } from "../services/CheckoutService.ts"
+import { NotificationService } from "../services/NotificationService.ts"
 import { CheckoutController } from "../controllers/CheckoutController.ts"
 import { authMiddleware } from "../middlewares/authMiddleware.ts"
 
@@ -41,6 +43,8 @@ const pricingService = new PricingService()
 const inventoryService = new InventoryService(productRepository)
 const paymentService = new PaymentService(paymentRepository)
 const auditService = new AuditService(auditRepository)
+const deviceRepository = AppDataSource.getRepository(UserDevice)
+const notificationService = new NotificationService(deviceRepository)
 
 const checkoutService = new CheckoutService(
     AppDataSource,
@@ -50,7 +54,8 @@ const checkoutService = new CheckoutService(
     pricingService,
     inventoryService,
     paymentService,
-    auditService
+    auditService,
+    notificationService
 )
 const checkoutController = new CheckoutController(checkoutService)
 

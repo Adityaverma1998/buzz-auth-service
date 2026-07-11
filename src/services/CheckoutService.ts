@@ -13,6 +13,7 @@ import { PricingService } from "./PricingService.ts"
 import { InventoryService } from "./InventoryService.ts"
 import { PaymentService } from "./PaymentService.ts"
 import { AuditService } from "./AuditService.ts"
+import { NotificationService } from "./NotificationService.ts"
 import { AuditAction } from "../entities/AuditLog.ts"
 import { generateOrderNumber } from "../utils/generateOrderNumber.ts"
 import { toMoney } from "../utils/money.ts"
@@ -40,6 +41,7 @@ export class CheckoutService {
     private inventoryService: InventoryService
     private paymentService: PaymentService
     private auditService: AuditService
+    private notificationService: NotificationService
 
     constructor(
         dataSource: DataSource,
@@ -49,7 +51,8 @@ export class CheckoutService {
         pricingService: PricingService,
         inventoryService: InventoryService,
         paymentService: PaymentService,
-        auditService: AuditService
+        auditService: AuditService,
+        notificationService: NotificationService
     ) {
         this.dataSource = dataSource
         this.cartService = cartService
@@ -59,6 +62,7 @@ export class CheckoutService {
         this.inventoryService = inventoryService
         this.paymentService = paymentService
         this.auditService = auditService
+        this.notificationService = notificationService
     }
 
     /**
@@ -266,6 +270,13 @@ export class CheckoutService {
                 newValues: { orderNumber: savedOrder.orderNumber, totalAmount: savedOrder.totalAmount }
             })
 
+            // Send push notification asynchronously (fire-and-forget)
+            this.notificationService.sendPushToUser(
+                userId,
+                "Order Placed successfully!",
+                `Your order ${savedOrder.orderNumber} of ₹${savedOrder.totalAmount} has been placed.`
+            ).catch(err => console.error("Order placement push notification failed:", err))
+
             return savedOrder
         })
     }
@@ -324,6 +335,13 @@ export class CheckoutService {
                     oldValues: { status: oldStatus },
                     newValues: { status: newStatus }
                 })
+
+                // Send push notification asynchronously (fire-and-forget)
+                this.notificationService.sendPushToUser(
+                    userId,
+                    "Order Confirmed!",
+                    `Your order ${order.orderNumber} is now confirmed.`
+                ).catch(err => console.error("Order confirmation push notification failed:", err))
             }
 
             return order

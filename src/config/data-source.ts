@@ -19,6 +19,7 @@ import { Payment } from "../entities/Payment.ts"
 import { Coupon } from "../entities/Coupon.ts"
 import { CouponUsage } from "../entities/CouponUsage.ts"
 import { AuditLog } from "../entities/AuditLog.ts"
+import { UserEventLog } from "../entities/UserEventLog.ts"
 import { Config } from "./index.ts"
 
 export const AppDataSource = new DataSource({
@@ -51,7 +52,8 @@ export const AppDataSource = new DataSource({
         Payment,
         Coupon,
         CouponUsage,
-        AuditLog
+        AuditLog,
+        UserEventLog
     ],
     migrations: [],
     subscribers: [],

@@ -8,6 +8,7 @@ import createHttpError from "http-errors"
 import { OrderStatusService } from "./OrderStatusService.ts"
 import { InventoryService } from "./InventoryService.ts"
 import { AuditService } from "./AuditService.ts"
+import { NotificationService } from "./NotificationService.ts"
 import { AuditAction } from "../entities/AuditLog.ts"
 import type { 
     CustomerOrderQueryInput, 
@@ -23,19 +24,22 @@ export class OrderService {
     private orderStatusService: OrderStatusService
     private inventoryService: InventoryService
     private auditService: AuditService
+    private notificationService: NotificationService
 
     constructor(
         dataSource: DataSource,
         orderRepository: Repository<Order>,
         orderStatusService: OrderStatusService,
         inventoryService: InventoryService,
-        auditService: AuditService
+        auditService: AuditService,
+        notificationService: NotificationService
     ) {
         this.dataSource = dataSource
         this.orderRepository = orderRepository
         this.orderStatusService = orderStatusService
         this.inventoryService = inventoryService
         this.auditService = auditService
+        this.notificationService = notificationService
     }
 
     /**
@@ -207,6 +211,33 @@ export class OrderService {
                 newValues: { status: newStatus }
             })
 
+            // Send push notification asynchronously (fire-and-forget)
+            if (updatedOrder.userId) {
+                let title = "Order Update"
+                let body = `Your order ${updatedOrder.orderNumber} status changed to ${newStatus.toLowerCase()}.`
+                if (newStatus === OrderStatus.CONFIRMED) {
+                    title = "Order Confirmed"
+                    body = `Your order ${updatedOrder.orderNumber} has been confirmed.`
+                } else if (newStatus === OrderStatus.PROCESSING) {
+                    title = "Order Processing"
+                    body = `We are now processing your order ${updatedOrder.orderNumber}.`
+                } else if (newStatus === OrderStatus.SHIPPED) {
+                    title = "Order Shipped"
+                    body = `Your order ${updatedOrder.orderNumber} has been shipped.`
+                } else if (newStatus === OrderStatus.DELIVERED) {
+                    title = "Order Delivered"
+                    body = `Your order ${updatedOrder.orderNumber} has been delivered. Enjoy!`
+                } else if (newStatus === OrderStatus.CANCELLED) {
+                    title = "Order Cancelled"
+                    body = `Your order ${updatedOrder.orderNumber} has been cancelled.`
+                } else if (newStatus === OrderStatus.REFUNDED) {
+                    title = "Refund Processed"
+                    body = `A refund of ₹${updatedOrder.totalAmount} has been processed for order ${updatedOrder.orderNumber}.`
+                }
+                
+                this.notificationService.sendPushToUser(updatedOrder.userId, title, body).catch(e => console.error(e))
+            }
+
             return updatedOrder
         })
     }
@@ -250,6 +281,15 @@ export class OrderService {
                 oldValues: { status: oldStatus },
                 newValues: { status: newStatus, trackingNumber: input.trackingNumber, shippingProvider: input.shippingProvider }
             })
+
+            // Send push notification asynchronously (fire-and-forget)
+            if (updatedOrder.userId) {
+                this.notificationService.sendPushToUser(
+                    updatedOrder.userId,
+                    "Order Shipped!",
+                    `Your order ${updatedOrder.orderNumber} has been shipped via ${input.shippingProvider}. Tracking No: ${input.trackingNumber}`
+                ).catch(e => console.error(e))
+            }
 
             return updatedOrder
         })
@@ -304,6 +344,13 @@ export class OrderService {
                 oldValues: { status: oldStatus },
                 newValues: { status: newStatus, cancellationReason: input.reason }
             })
+
+            // Send push notification asynchronously (fire-and-forget)
+            this.notificationService.sendPushToUser(
+                userId,
+                "Order Cancelled",
+                `Your order ${updatedOrder.orderNumber} has been cancelled successfully.`
+            ).catch(e => console.error(e))
 
             return updatedOrder
         })
