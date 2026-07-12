@@ -12,8 +12,8 @@ export class User {
     @Column({ type: "varchar" })
     firstName!: string
 
-    @Column({ type: "varchar" })
-    lastName!: string
+    @Column({ type: "varchar", nullable: true })
+    lastName?: string
 
     @Column({ type: "varchar", unique: true })
     email!: string

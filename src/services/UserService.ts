@@ -36,7 +36,9 @@ export class UserService {
         // Create new user entity instance
         const user = new User();
         user.firstName = input.firstName;
-        user.lastName = input.lastName;
+        if (input.lastName) {
+            user.lastName = input.lastName;
+        }
         user.email = input.email;
         user.password = hashedPassword;
         if (input.phone !== undefined) {
@@ -100,7 +102,9 @@ export class UserService {
             // Register a new user for this OAuth provider
             user = new User();
             user.firstName = input.firstName;
-            user.lastName = input.lastName;
+            if (input.lastName) {
+                user.lastName = input.lastName;
+            }
             user.email = input.email;
             user.provider = input.provider;
             user.providerUserId = input.providerUserId;

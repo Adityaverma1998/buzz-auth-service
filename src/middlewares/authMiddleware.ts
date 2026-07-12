@@ -15,6 +15,7 @@ export interface AuthRequest extends Request {
 export const authMiddleware = (req: Request, _res: Response, next: NextFunction): void => {
     try {
         const authHeader = req.headers.authorization;
+        console.log("authMiddleware hit on path:", req.originalUrl, "with authorization:", authHeader);
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new createHttpError.Unauthorized("Missing or invalid Authorization header");
